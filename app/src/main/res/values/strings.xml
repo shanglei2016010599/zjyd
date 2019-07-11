@@ -3,4 +3,12 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="scan_title">Scan</string>
+    <string name="title_call">call</string>
+    <string name="title_friend">friend</string>
+    <string name="title_location">location</string>
+    <string name="title_mail">mail</string>
+    <string name="title_task">task</string>
+    <string name="username">gaunch</string>
+    <string name="mail">1014952588@qq.com</string>
 </resources>
