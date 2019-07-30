@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         setContentView(R.layout.activity_main);
         /* DrawerLayout初始化 */
         mDrawerLayout = findViewById(R.id.drawer_layout);

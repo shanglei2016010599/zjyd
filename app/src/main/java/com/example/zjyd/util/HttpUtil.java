@@ -9,7 +9,7 @@ import okhttp3.RequestBody;
 
 public class HttpUtil {
 
-    static void sendOkHttpRequest(String address, okhttp3.Callback callback){
+    public static void sendOkHttpRequest(String address, okhttp3.Callback callback){
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(address)
@@ -17,7 +17,7 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    static void sendOkHttpRequestByPost(String address, String key1, String Body1, String key2, String Body2, Callback callback){
+    public static void sendOkHttpRequestByPost(String address, String key1, String Body1, String key2, String Body2, Callback callback){
         OkHttpClient client = new OkHttpClient();
 
         RequestBody requestBody = new FormBody.Builder()

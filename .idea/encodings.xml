@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" addBOMForNewFiles="with NO BOM" />
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$USER_HOME$/Documents/AndroidStudio/DeviceExplorer/huawei-huawei_nxt_al10-5LM0216406001260/data/data/com.example.zjyd/databases/overlay.db" charset="US-ASCII" />
+  </component>
 </project>

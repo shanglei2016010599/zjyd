@@ -1,14 +1,16 @@
 package com.example.zjyd.fragment;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,14 +36,21 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.zjyd.R;
+import com.example.zjyd.db.Overlay;
 import com.example.zjyd.model.CityModel;
 import com.example.zjyd.model.DistrictModel;
 import com.example.zjyd.model.ProvinceModel;
+import com.example.zjyd.util.HttpUtil;
+import com.example.zjyd.util.HttpUtil.*;
+import com.example.zjyd.util.LogUtil;
+import com.example.zjyd.util.URLUtil;
+import com.example.zjyd.util.Utility;
 import com.example.zjyd.util.XmlParserHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,11 +63,15 @@ import java.util.Objects;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MapFragment extends Fragment {
+public class MapFragment<sendOkHttpRequest> extends Fragment {
+
+    private static final String TAG = "MapFragment";
+    private static final int GET_LOCATION_OK = 1;
 
     //所有省
     protected String[] mProvinceDatas;
@@ -78,10 +91,8 @@ public class MapFragment extends Fragment {
     public LocationClient mLocationClient;
     private BDLocation mlocation=null;
 
-    //储存获取到的地址
-    private List<String> id = new ArrayList<>();//id类
-    private List<String> latitude = new ArrayList<>();//精度类
-    private List<String> longitude = new ArrayList<>();//纬度类
+    //储存从服务器获取到的机器的经纬度
+    private List<Overlay> overlayList = new ArrayList<>();
 
     //地区下拉框
     private Spinner provinceSpinner = null;  //省级（省、直辖市）
@@ -89,6 +100,22 @@ public class MapFragment extends Fragment {
     ArrayAdapter<String> provinceAdapter = null;  //省级适配器
     ArrayAdapter<String> cityAdapter = null;    //地级适配器
     static int provincePosition = 0;
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case GET_LOCATION_OK:
+                    //显示覆盖点
+                    setOverlay();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,7 +147,7 @@ public class MapFragment extends Fragment {
         //设置下拉框
         setSpinner();
         //获取覆盖点信息
-        getOverlay();
+        queryOverlayFromServer();
         List<String> permissionList = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.READ_PHONE_STATE);
@@ -147,12 +174,12 @@ public class MapFragment extends Fragment {
         return view;
     }
 
-    //获取覆盖点坐标
-    private void getOverlay() {
-        sendRequestWithOkHttp();
-        for (int j = 0; j < id.size(); j++) {
-            Double la = Double.valueOf(latitude.get(j));
-            Double lo = Double.valueOf(longitude.get(j));
+    //设置覆盖点
+    private void setOverlay() {
+        overlayList = DataSupport.findAll(Overlay.class);
+        for (int i = 0; i < overlayList.size(); i++) {
+            Double la = Double.valueOf(overlayList.get(i).getLatitude());
+            Double lo = Double.valueOf(overlayList.get(i).getLongitude());
             //定义Maker坐标点
             LatLng point = new LatLng(la, lo);
             //构建Marker图标
@@ -180,8 +207,6 @@ public class MapFragment extends Fragment {
                 R.layout.spinner_item, Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName)));
         citySpinner.setAdapter(cityAdapter);
         citySpinner.setSelection(0,true);  //默认选中第0个
-
-
 
         //省级下拉框监听
         provinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
@@ -215,50 +240,50 @@ public class MapFragment extends Fragment {
             {
 
             }
+        });
 
+        /* 城市下拉列表监听器 */
+        /* 选中后，将省、市发送给服务器 */
+        citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
         });
 
     }
 
-    //访问网页
-    private void sendRequestWithOkHttp(){
-        new Thread(new Runnable() {
+    /* 从服务器获得所有机器的经纬度 */
+    private void queryOverlayFromServer(){
+        HttpUtil.sendOkHttpRequest(URLUtil.OverlayURL, new okhttp3.Callback() {
             @Override
-            public void run() {
-                try{
-                    OkHttpClient client = new OkHttpClient();
-                    Request request = new Request.Builder()
-                            .url("http://225i9b1176.51mypc.cn:27786/SqlSever/Device_Data")//网址
-                            .build();
-                    Response response = client.newCall(request).execute();
-                    String responseData = Objects.requireNonNull(response.body()).string();
-                    parseJSONWithJSONObject(responseData);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            public void onFailure(Call call, IOException e) {
+                LogUtil.e(TAG, e.toString());
+                Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "加载失败",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = Objects.requireNonNull(response.body()).string();
+                LogUtil.d(TAG, responseData);
+                if (Utility.handleOverlayResponse(responseData)){
+                    Message message = new Message();
+                    message.what = GET_LOCATION_OK;
+                    handler.sendMessage(message);
                 }
             }
-        }).start();
-    }
-
-    //json解析
-    private void parseJSONWithJSONObject(String jsonData) {
-        try {
-            JSONArray jsonArray = new JSONArray(jsonData);
-            for (int i=0; i < jsonArray.length(); i++){
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String id1= jsonObject.getString("deviceID");//获取id
-                String latitude1 = jsonObject.getString("gPSData_latitude");//获取精度
-                String longitude1 = jsonObject.getString("gPSData_longitude");//获取纬度
-                Log.d("MapFragment","id"+i+" is "+id.get(i));
-                Log.d("MapFragment","latitude "+i+" is "+latitude.get(i));
-                Log.d("MapFragment","longitude "+i+" is "+longitude.get(i));
-                id.add(id1);
-                latitude.add(latitude1);
-                longitude.add(longitude1);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     @Override
