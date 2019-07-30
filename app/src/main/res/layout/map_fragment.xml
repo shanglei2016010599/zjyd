@@ -1,11 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="#ffffff"
         android:layout_height="match_parent"
-        android:text="This is map fragment"/>
+        android:orientation="horizontal"
+        android:layout_weight="11"
+        >
+        <!-- 省 -->
+        <Spinner
+            android:id="@+id/spin_province"
+            android:layout_width="wrap_content"
+            android:textSize="18sp"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog"
+            android:layout_centerVertical="true"
+            />
+        <!-- 市 -->
+        <Spinner
+            android:id="@+id/spin_city"
+            android:layout_width="wrap_content"
+            android:textSize="18dp"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog"
+            android:layout_centerVertical="true"
+            />
+    </LinearLayout>
+
+    <!-- 县 -->
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="3"
+        android:clickable="true"
+        android:focusable="true" />
+    <!-- 文字 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="23dp"
+            android:text="本产品已售出xx台"
+            android:textSize="22sp"
+            android:id="@+id/text1"
+            android:layout_centerHorizontal="true"
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:text="销往世界xx个地区"
+            android:id="@+id/text2"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/text1"
+            />
+
+    </RelativeLayout>
 
 </LinearLayout>

@@ -1,8 +1,5 @@
 package com.example.zjyd;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
@@ -15,11 +12,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.example.zjyd.fragment.MapFragment;
 import com.example.zjyd.fragment.ProductionDataFragment;
 import com.example.zjyd.fragment.aFragment;
@@ -76,6 +73,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try{
+            SDKInitializer.initialize(getApplicationContext());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
         setContentView(R.layout.activity_main);
         /* DrawerLayout初始化 */
         mDrawerLayout = findViewById(R.id.drawer_layout);
