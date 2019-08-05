@@ -38,7 +38,7 @@ public class LogUtil {
 
     public static void e(String tag, String msg) {
         if (level <= ERROR) {
-            Log.w(tag, msg );
+            Log.e(tag, msg );
         }
     }
 

@@ -1,7 +1,6 @@
 package com.example.zjyd.util;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.zjyd.db.Overlay;
 
@@ -9,8 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.DataSupport;
-
-import java.util.List;
 
 public class Utility {
 
@@ -25,6 +22,7 @@ public class Utility {
     public static boolean handleOverlayResponse(String response) {
         if (!TextUtils.isEmpty(response)){
             try {
+                DataSupport.deleteAll("overlay");
                 JSONArray allOverlays = new JSONArray(response);
                 for (int i = 0; i < allOverlays.length(); i++){
                     JSONObject jsonObject = allOverlays.getJSONObject(i);

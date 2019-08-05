@@ -2,6 +2,7 @@ package com.example.zjyd.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -27,29 +28,29 @@ import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
+import com.example.zjyd.InfoActivity;
 import com.example.zjyd.R;
 import com.example.zjyd.db.Overlay;
 import com.example.zjyd.model.CityModel;
 import com.example.zjyd.model.DistrictModel;
 import com.example.zjyd.model.ProvinceModel;
 import com.example.zjyd.util.HttpUtil;
-import com.example.zjyd.util.HttpUtil.*;
 import com.example.zjyd.util.LogUtil;
 import com.example.zjyd.util.URLUtil;
 import com.example.zjyd.util.Utility;
 import com.example.zjyd.util.XmlParserHandler;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
@@ -64,8 +65,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 public class MapFragment<sendOkHttpRequest> extends Fragment {
@@ -109,6 +108,7 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
                 case GET_LOCATION_OK:
                     //显示覆盖点
                     setOverlay();
+                    mBaiduMap.setOnMarkerClickListener(overlayListener);//地图覆盖物事件监听器
                     break;
                 default:
                     break;
@@ -148,6 +148,10 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
         setSpinner();
         //获取覆盖点信息
         queryOverlayFromServer();
+
+        mBaiduMap.setOnMapClickListener(listener);//地图事件监听器
+
+
         List<String> permissionList = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.READ_PHONE_STATE);
@@ -174,21 +178,70 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
         return view;
     }
 
+    //地图覆盖物点击事件
+    BaiduMap.OnMarkerClickListener overlayListener = new BaiduMap.OnMarkerClickListener() {
+        /**
+         * 地图 Marker 覆盖物点击事件监听函数
+         * @param marker 被点击的 marker
+         */
+        public boolean onMarkerClick(Marker marker){
+            try{
+                Intent intent = new Intent(getActivity(), InfoActivity.class);//发送id值并跳转
+                intent.putExtra("ID",  marker.getExtraInfo().getString("id") );
+                Objects.requireNonNull(getActivity()).startActivity(intent);
+            } catch (Exception e){
+                LogUtil.e(TAG, e.toString());
+            }
+            return true;
+        }
+    };
+
+    //地图点击事件
+    BaiduMap.OnMapClickListener listener = new BaiduMap.OnMapClickListener() {
+        /**
+         * 地图单击事件回调函数
+         *
+         * @param point 点击的地理坐标
+         */
+        @Override
+        public void onMapClick(LatLng point) {
+
+            Toast.makeText(getActivity(), "你点击了地图", Toast.LENGTH_SHORT).show();
+
+        }
+
+        /**
+         * 地图内 Poi 单击事件回调函数
+         *
+         * @param mapPoi 点击的 poi 信息
+         */
+        @Override
+        public boolean onMapPoiClick(MapPoi mapPoi) {
+            return false;
+        }
+    };
+
     //设置覆盖点
     private void setOverlay() {
+        overlayList.clear();
         overlayList = DataSupport.findAll(Overlay.class);
         for (int i = 0; i < overlayList.size(); i++) {
             Double la = Double.valueOf(overlayList.get(i).getLatitude());
             Double lo = Double.valueOf(overlayList.get(i).getLongitude());
+            /* 使用Bundle来存储机械编号 */
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("id", overlayList.get(i).getDeviceID());
+
             //定义Maker坐标点
             LatLng point = new LatLng(la, lo);
             //构建Marker图标
             BitmapDescriptor bitmap = BitmapDescriptorFactory
                     .fromResource(R.drawable.icon_marka);
             //构建MarkerOption，用于在地图上添加Marker
-            OverlayOptions option = new MarkerOptions()
+            MarkerOptions option = new MarkerOptions()
                     .position(point)
-                    .icon(bitmap);
+                    .icon(bitmap)
+                    .extraInfo(bundle); // 覆盖物携带数据
             //在地图上添加Marker，并显示
             mBaiduMap.addOverlay(option);
         }
