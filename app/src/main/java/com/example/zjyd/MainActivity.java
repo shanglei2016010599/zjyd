@@ -6,20 +6,16 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.example.zjyd.fragment.ChooseMachineFragment;
 import com.example.zjyd.fragment.MapFragment;
 import com.example.zjyd.fragment.ProductionDataFragment;
-import com.example.zjyd.fragment.aFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,35 +36,13 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new ProductionDataFragment());
                     return true;
                 case R.id.navigation_notifications:
-                    replaceFragment(new aFragment());
+                    replaceFragment(new ChooseMachineFragment());
                     return true;
             }
             return false;
         }
     };
 
-    /* 初始化toolbar菜单 */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        return true;
-    }
-
-    /* toolbar按钮点击事件 */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.scan:
-                Toast.makeText(MainActivity.this, "You clicked the scan",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                break;
-            default:
-        }
-        return true;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,20 +60,11 @@ public class MainActivity extends AppCompatActivity {
         /* NavigationView初始化 */
         NavigationView navigationView = findViewById(R.id.navigationView);
         navigationView.inflateMenu(R.menu.nav_menu);
-        /* ToolBar初始化 */
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         /* 底部导航初始化 */
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         /* 碎片初始化 */
         replaceFragment(new MapFragment());
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
 
         /* 默认选中电话 */
         navigationView.setCheckedItem(R.id.nav_call);

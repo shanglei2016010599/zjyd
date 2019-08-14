@@ -4,6 +4,8 @@ import java.util.List;
 
 public class CityModel {
 	private String name;
+	private String longitude;
+	private String latitude;
 	private List<DistrictModel> districtList;
 	
 	public CityModel() {
@@ -24,6 +26,22 @@ public class CityModel {
 		this.name = name;
 	}
 
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
 	public List<DistrictModel> getDistrictList() {
 		return districtList;
 	}
@@ -34,7 +52,7 @@ public class CityModel {
 
 	@Override
 	public String toString() {
-		return "CityModel [name=" + name + ", districtList=" + districtList
+		return "CityModel [name=" + name + ", longitude="+ longitude+ ", latitude="+ latitude+", districtList=" + districtList
 				+ "]";
 	}
 	

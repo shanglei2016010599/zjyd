@@ -38,7 +38,6 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.model.LatLngBounds;
 import com.example.zjyd.InfoActivity;
 import com.example.zjyd.R;
 import com.example.zjyd.db.Overlay;
@@ -67,7 +66,7 @@ import javax.xml.parsers.SAXParserFactory;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class MapFragment<sendOkHttpRequest> extends Fragment {
+public class MapFragment extends Fragment {
 
     private static final String TAG = "MapFragment";
     private static final int GET_LOCATION_OK = 1;
@@ -76,6 +75,10 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
     protected String[] mProvinceDatas;
     //key - 省 value - 市
     protected Map<String, String[]> mCitiesDatasMap = new HashMap<>();
+    //key - 市 values - 经度
+    protected Map<String, String> mLongitudeDatasMap = new HashMap<>();
+    // key - 市 values - 纬度
+    protected Map<String, String> mLatitudeDatasMap = new HashMap<>();
     //当前省的名称
     protected String mCurrentProvinceName;
     //当前市的名称
@@ -108,7 +111,6 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
                 case GET_LOCATION_OK:
                     //显示覆盖点
                     setOverlay();
-                    mBaiduMap.setOnMarkerClickListener(overlayListener);//地图覆盖物事件监听器
                     break;
                 default:
                     break;
@@ -150,7 +152,7 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
         queryOverlayFromServer();
 
         mBaiduMap.setOnMapClickListener(listener);//地图事件监听器
-
+        mBaiduMap.setOnMarkerClickListener(overlayListener);//地图覆盖物事件监听器
 
         List<String> permissionList = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -185,13 +187,11 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
          * @param marker 被点击的 marker
          */
         public boolean onMarkerClick(Marker marker){
-            try{
-                Intent intent = new Intent(getActivity(), InfoActivity.class);//发送id值并跳转
-                intent.putExtra("ID",  marker.getExtraInfo().getString("id") );
-                Objects.requireNonNull(getActivity()).startActivity(intent);
-            } catch (Exception e){
-                LogUtil.e(TAG, e.toString());
-            }
+            String deviceID = marker.getExtraInfo().getString("id");
+
+            Intent intent = new Intent(getActivity(), InfoActivity.class);//发送id值并跳转
+            intent.putExtra("ID",  deviceID);
+            Objects.requireNonNull(getActivity()).startActivity(intent);
             return true;
         }
     };
@@ -225,13 +225,13 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
     private void setOverlay() {
         overlayList.clear();
         overlayList = DataSupport.findAll(Overlay.class);
+        List<OverlayOptions> options = new ArrayList<>();
         for (int i = 0; i < overlayList.size(); i++) {
             Double la = Double.valueOf(overlayList.get(i).getLatitude());
             Double lo = Double.valueOf(overlayList.get(i).getLongitude());
             /* 使用Bundle来存储机械编号 */
             Bundle bundle = new Bundle();
             bundle.putSerializable("id", overlayList.get(i).getDeviceID());
-
             //定义Maker坐标点
             LatLng point = new LatLng(la, lo);
             //构建Marker图标
@@ -242,9 +242,10 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
                     .position(point)
                     .icon(bitmap)
                     .extraInfo(bundle); // 覆盖物携带数据
-            //在地图上添加Marker，并显示
-            mBaiduMap.addOverlay(option);
+            options.add(option);
         }
+        //在地图上添加Marker，并显示
+        mBaiduMap.addOverlays(options);
     }
 
     private void setSpinner() {
@@ -300,6 +301,25 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
         citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                //position为当前市级选中的值的序号
+                String city = Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName))[position];
+                LogUtil.d(TAG, city);
+                if(!city.equals("请选择"))
+                {
+                    String latitude = mLatitudeDatasMap.get(city);
+                    String longitude= mLongitudeDatasMap.get(city);
+                    LatLng point = new LatLng(Double.valueOf(Objects.requireNonNull(latitude)),
+                            Double.valueOf(Objects.requireNonNull(longitude)));
+                    //zoom设置缩放等级，值越大，地点越详细
+                    MapStatus mMapSta0tus = new MapStatus.Builder()
+                            .target(point)//中心坐标
+                            .zoom(11)
+                            .build();
+                    //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+                    MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapSta0tus);
+                    mBaiduMap.animateMapStatus(mMapStatusUpdate);
+                    //改变地图状态
+                }
 
             }
 
@@ -550,9 +570,17 @@ public class MapFragment<sendOkHttpRequest> extends Fragment {
                 mProvinceDatas[i] = provinceList.get(i).getName();
                 List<CityModel> cityList = provinceList.get(i).getCityList();
                 String[] cityNames = new String[cityList.size()];
+                String[] cityLatitude = new String[cityList.size()];
+                String[] cityLongitude = new String[cityList.size()];
+
                 for (int j = 0; j < cityList.size(); j++) {
                     // 遍历省下面的所有市的数据
                     cityNames[j] = cityList.get(j).getName();
+                    cityLatitude[j] = cityList.get(j).getLatitude();
+                    cityLongitude[j] = cityList.get(j).getLongitude ();
+                    mLatitudeDatasMap.put(cityList.get(j).getName(), cityList.get(j).getLatitude());
+                    mLongitudeDatasMap.put(cityList.get(j).getName(), cityList.get(j).getLongitude());
+
                     List<DistrictModel> districtList = cityList.get(j).getDistrictList();
                     String[] distrinctNameArray = new String[districtList.size()];
                     DistrictModel[] distrinctArray = new DistrictModel[districtList.size()];
