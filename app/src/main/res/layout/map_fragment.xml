@@ -18,21 +18,17 @@
             android:layout_width="wrap_content"
             android:textSize="18sp"
             android:layout_height="wrap_content"
-            android:spinnerMode="dialog"
-            android:layout_centerVertical="true"
-            />
+            android:spinnerMode="dialog" />
         <!-- 市 -->
         <Spinner
             android:id="@+id/spin_city"
             android:layout_width="wrap_content"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:layout_height="wrap_content"
-            android:spinnerMode="dialog"
-            android:layout_centerVertical="true"
-            />
+            android:spinnerMode="dialog" />
     </LinearLayout>
 
-    <!-- 县 -->
+    <!-- 地图 -->
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
         android:layout_width="fill_parent"
