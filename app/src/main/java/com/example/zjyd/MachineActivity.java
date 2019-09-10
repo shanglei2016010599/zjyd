@@ -16,8 +16,9 @@ import com.baidu.mapapi.SDKInitializer;
 import com.example.zjyd.fragment.ChooseMachineFragment;
 import com.example.zjyd.fragment.MapFragment;
 import com.example.zjyd.fragment.ProductionDataFragment;
+import com.example.zjyd.fragment.aFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MachineActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    replaceFragment(new MapFragment());
+                    replaceFragment(new aFragment());
                     return true;
                 case R.id.navigation_dashboard:
                     replaceFragment(new ProductionDataFragment());
@@ -48,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try{
-            SDKInitializer.initialize(getApplicationContext());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            SDKInitializer.initialize(getApplicationContext());
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_machine);
         /* DrawerLayout初始化 */
         mDrawerLayout = findViewById(R.id.drawer_layout);
         /* NavigationView初始化 */
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         /* 碎片初始化 */
-        replaceFragment(new MapFragment());
+        replaceFragment(new aFragment());
 
         /* 默认选中电话 */
         navigationView.setCheckedItem(R.id.nav_call);
@@ -74,23 +75,23 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch ( menuItem.getItemId() ) {
                     case R.id.nav_call:
-                        Toast.makeText(MainActivity.this, "You clicked call",
+                        Toast.makeText(MachineActivity.this, "You clicked call",
                                 Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.nav_friends:
-                        Toast.makeText(MainActivity.this, "You clicked friends",
+                        Toast.makeText(MachineActivity.this, "You clicked friends",
                                 Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.nav_location:
-                        Toast.makeText(MainActivity.this, "You clicked location",
+                        Toast.makeText(MachineActivity.this, "You clicked location",
                                 Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.nav_mail:
-                        Toast.makeText(MainActivity.this, "You clicked mail",
+                        Toast.makeText(MachineActivity.this, "You clicked mail",
                                 Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.nav_task:
-                        Toast.makeText(MainActivity.this, "You clicked task",
+                        Toast.makeText(MachineActivity.this, "You clicked task",
                                 Toast.LENGTH_SHORT).show();
                         break;
                     default:

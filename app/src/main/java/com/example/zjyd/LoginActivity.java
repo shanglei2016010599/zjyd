@@ -1,6 +1,7 @@
 package com.example.zjyd;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -31,8 +32,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText passwordEdit;
 
-    private Button loginButton;
-
     private String account;
 
     private String password;
@@ -50,6 +49,13 @@ public class LoginActivity extends AppCompatActivity {
             if (msg.what == LOGIN_SUCCESS) {
                 Toast.makeText(LoginActivity.this, "登录成功",
                         Toast.LENGTH_SHORT).show();
+                Intent intent;
+                if (userType.equals("user")) {
+                    intent = new Intent(LoginActivity.this, ChooseMachineActivity.class);
+                } else {
+                    intent = new Intent(LoginActivity.this, MapActivity.class);
+                }
+                startActivity(intent);
             }
         }
     };
@@ -60,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         accountEdit = findViewById(R.id.login_account);
         passwordEdit = findViewById(R.id.password);
-        loginButton = findViewById(R.id.login);
     }
 
     public void Login(View view) {
@@ -86,13 +91,21 @@ public class LoginActivity extends AppCompatActivity {
                         LogUtil.d(TAG, responseData);
                         results = responseData.split(",");
                         result = results[0];
-                        userType = results[1];
+                        userType = results[1].trim();
                         LogUtil.d(TAG, "result is " + result);
                         LogUtil.d(TAG, "userType is " + userType);
                         if (result.equals("success")){
                             Message message = new Message();
                             message.what = LOGIN_SUCCESS;
                             handler.sendMessage(message);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(LoginActivity.this, "账号或密码错误",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     }
                 });

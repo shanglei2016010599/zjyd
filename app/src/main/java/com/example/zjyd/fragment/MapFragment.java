@@ -2,6 +2,7 @@ package com.example.zjyd.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -52,6 +53,8 @@ import com.example.zjyd.util.XmlParserHandler;
 
 import org.litepal.crud.DataSupport;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -122,11 +125,13 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //在fragment用getContext().getApplicationContext()获取整个应用的上下文
+        // 在fragment用getContext().getApplicationContext()获取整个应用的上下文
+        // 声明LocationClient类
         mLocationClient = new LocationClient(Objects.requireNonNull(getContext()).getApplicationContext());
-        //声明LocationClient类
+        // 注册监听函数
         mLocationClient.registerLocationListener(new MyLocationListener());
-        //注册监听函数
+        // 自定义地图样式
+        setMapCustomFile(getContext().getApplicationContext(), "custom_map_config.json");
     }
 
     @Nullable
@@ -139,6 +144,7 @@ public class MapFragment extends Fragment {
         mMapView.showScaleControl(true);//显示比例尺
         mMapView.showZoomControls(true);//显示缩放按钮
         mMapView.removeViewAt(1);//删除百度地图LoGo
+        MapView.setMapCustomEnable(true);   // 开启个性化地图
         //获取下拉框
         provinceSpinner = view.findViewById(R.id.spin_province);
         citySpinner = view.findViewById(R.id.spin_city);
@@ -512,6 +518,7 @@ public class MapFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        MapView.setMapCustomEnable(false);  // 关闭自定义样式
         mMapView.onDestroy();
     }
 
@@ -592,4 +599,43 @@ public class MapFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 将个性化文件写入本地后调用MapView.setCustomMapStylePath加载
+     * @param context 上下文对象
+     * @param fileName assets目录下自定义样式文件的文件名
+     */
+    private void setMapCustomFile(Context context, String fileName) {
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+        String moduleName = null;
+        try {
+            inputStream = context.getAssets().open("customConfigDir/" + fileName);
+            byte[] b = new byte[inputStream.available()];
+            inputStream.read(b);
+            moduleName = context.getFilesDir().getAbsolutePath();
+            File file = new File(moduleName + "/" + fileName);
+            if (file.exists()) file.delete();
+            file.createNewFile();
+            fileOutputStream = new FileOutputStream(file);
+            //将自定义样式文件写入本地
+            fileOutputStream.write(b);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+//设置自定义样式文件
+        MapView.setCustomMapStylePath(moduleName + "/" + fileName);
+    }
+
 }
