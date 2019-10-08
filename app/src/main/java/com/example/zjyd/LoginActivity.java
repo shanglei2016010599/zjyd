@@ -7,14 +7,12 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.zjyd.util.HttpUtil;
 import com.example.zjyd.util.LogUtil;
 import com.example.zjyd.util.URLUtil;
-import com.example.zjyd.util.Utility;
 
 import java.io.IOException;
 import java.util.Objects;
