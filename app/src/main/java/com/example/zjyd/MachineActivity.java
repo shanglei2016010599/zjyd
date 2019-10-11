@@ -19,6 +19,7 @@ import com.example.zjyd.fragment.InfoFragment;
 public class MachineActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
+    private static final String TAG = "MachineActivity";
 
     /* 底部导航按钮点击事件 */
     /* 动态切换碎片 */
@@ -55,6 +56,7 @@ public class MachineActivity extends AppCompatActivity {
         /* 底部导航初始化 */
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         /* 碎片初始化 */
         replaceFragment(new InfoFragment());
 
@@ -108,5 +110,4 @@ public class MachineActivity extends AppCompatActivity {
         transaction.replace(R.id.fragment, fragment);
         transaction.commit();
     }
-
 }

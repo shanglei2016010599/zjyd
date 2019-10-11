@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -127,7 +128,9 @@ public class MapFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // 在fragment用getContext().getApplicationContext()获取整个应用的上下文
         // 声明LocationClient类
-        mLocationClient = new LocationClient(Objects.requireNonNull(getContext()).getApplicationContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mLocationClient = new LocationClient(Objects.requireNonNull(getContext()).getApplicationContext());
+        }
         // 注册监听函数
         mLocationClient.registerLocationListener(new MyLocationListener());
         // 自定义地图样式
@@ -161,15 +164,21 @@ public class MapFragment extends Fragment {
         mBaiduMap.setOnMarkerClickListener(overlayListener);//地图覆盖物事件监听器
 
         List<String> permissionList = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.READ_PHONE_STATE);
-        }//获取手机状态
-        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        }//获取位置信息
-        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }//获取位置信息
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(Manifest.permission.READ_PHONE_STATE);
+            }//获取手机状态
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }//获取位置信息
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }//获取位置信息
+        }
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }//读写SD卡
@@ -197,7 +206,9 @@ public class MapFragment extends Fragment {
 
             Intent intent = new Intent(getActivity(), InfoActivity.class);//发送id值并跳转
             intent.putExtra("ID",  deviceID);
-            Objects.requireNonNull(getActivity()).startActivity(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Objects.requireNonNull(getActivity()).startActivity(intent);
+            }
             return true;
         }
     };
@@ -233,8 +244,8 @@ public class MapFragment extends Fragment {
         overlayList = DataSupport.findAll(Overlay.class);
         List<OverlayOptions> options = new ArrayList<>();
         for (int i = 0; i < overlayList.size(); i++) {
-            Double la = Double.valueOf(overlayList.get(i).getLatitude());
-            Double lo = Double.valueOf(overlayList.get(i).getLongitude());
+            double la = Double.parseDouble(overlayList.get(i).getLatitude());
+            double lo = Double.parseDouble(overlayList.get(i).getLongitude());
             /* 使用Bundle来存储机械编号 */
             Bundle bundle = new Bundle();
             bundle.putSerializable("id", overlayList.get(i).getDeviceID());
@@ -259,12 +270,16 @@ public class MapFragment extends Fragment {
          * 设置下拉框
          */
         //绑定适配器和值
-        provinceAdapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
-                R.layout.spinner_item, mProvinceDatas);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            provinceAdapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+                    R.layout.spinner_item, mProvinceDatas);
+        }
         provinceSpinner.setAdapter(provinceAdapter);
         provinceSpinner.setSelection(0,true);  //设置默认选中项，此处为默认选中第0个值
-        cityAdapter = new ArrayAdapter<>(getContext(),
-                R.layout.spinner_item, Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            cityAdapter = new ArrayAdapter<>(getContext(),
+                    R.layout.spinner_item, Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName)));
+        }
         citySpinner.setAdapter(cityAdapter);
         citySpinner.setSelection(0,true);  //默认选中第0个
 
@@ -288,8 +303,10 @@ public class MapFragment extends Fragment {
                 }
 
                 //将地级适配器的值改变为city[position]中的值
-                cityAdapter = new ArrayAdapter<>(
-                        Objects.requireNonNull(getContext()), R.layout.spinner_item, cities);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    cityAdapter = new ArrayAdapter<>(
+                            Objects.requireNonNull(getContext()), R.layout.spinner_item, cities);
+                }
                 // 设置二级下拉列表的选项内容适配器
                 citySpinner.setAdapter(cityAdapter);
                 provincePosition = position;    //记录当前省级序号，留给下面修改县级适配器时用
@@ -308,14 +325,20 @@ public class MapFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 //position为当前市级选中的值的序号
-                String city = Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName))[position];
+                String city = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    city = Objects.requireNonNull(mCitiesDatasMap.get(mCurrentProvinceName))[position];
+                }
                 LogUtil.d(TAG, city);
                 if(!city.equals("请选择"))
                 {
                     String latitude = mLatitudeDatasMap.get(city);
                     String longitude= mLongitudeDatasMap.get(city);
-                    LatLng point = new LatLng(Double.valueOf(Objects.requireNonNull(latitude)),
-                            Double.valueOf(Objects.requireNonNull(longitude)));
+                    LatLng point = null;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        point = new LatLng(Double.valueOf(Objects.requireNonNull(latitude)),
+                                Double.valueOf(Objects.requireNonNull(longitude)));
+                    }
                     //zoom设置缩放等级，值越大，地点越详细
                     MapStatus mMapSta0tus = new MapStatus.Builder()
                             .target(point)//中心坐标
@@ -343,18 +366,23 @@ public class MapFragment extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
                 LogUtil.e(TAG, e.toString());
-                Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), "加载失败",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "加载失败",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseData = Objects.requireNonNull(response.body()).string();
+                String responseData = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    responseData = Objects.requireNonNull(response.body()).string();
+                }
                 LogUtil.d(TAG, responseData);
                 if (Utility.handleOverlayResponse(responseData)){
                     Message message = new Message();
@@ -385,7 +413,9 @@ public class MapFragment extends Fragment {
                     requestLocation();
                 } else {
                     Toast.makeText(getActivity(), "发生未知错误，换个新手机试试？", Toast.LENGTH_SHORT).show();
-                    Objects.requireNonNull(getActivity()).finish();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        Objects.requireNonNull(getActivity()).finish();
+                    }
                 }
                 break;
             default:
@@ -549,7 +579,10 @@ public class MapFragment extends Fragment {
     protected void initProvinceDatas()
     {
         List<ProvinceModel> provinceList;
-        AssetManager asset = Objects.requireNonNull(getActivity()).getAssets();
+        AssetManager asset = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            asset = Objects.requireNonNull(getActivity()).getAssets();
+        }
         try {
             InputStream input = asset.open("province_data.xml");
             // 创建一个解析xml的工厂对象
@@ -571,7 +604,9 @@ public class MapFragment extends Fragment {
                 }
             }
 
-            mProvinceDatas = new String[Objects.requireNonNull(provinceList).size()];
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mProvinceDatas = new String[Objects.requireNonNull(provinceList).size()];
+            }
             for (int i=0; i< provinceList.size(); i++) {
                 // 遍历所有省的数据
                 mProvinceDatas[i] = provinceList.get(i).getName();
