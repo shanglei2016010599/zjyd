@@ -134,7 +134,7 @@ public class MapFragment extends Fragment {
         // 注册监听函数
         mLocationClient.registerLocationListener(new MyLocationListener());
         // 自定义地图样式
-        setMapCustomFile(getContext().getApplicationContext(), "custom_map_config.json");
+        setMapCustomFile(Objects.requireNonNull(getContext()).getApplicationContext(), "custom_map_config.json");
     }
 
     @Nullable
@@ -203,12 +203,10 @@ public class MapFragment extends Fragment {
          */
         public boolean onMarkerClick(Marker marker){
             String deviceID = marker.getExtraInfo().getString("id");
-
+            /*应修改为跳转至机器选择活动*/
             Intent intent = new Intent(getActivity(), InfoActivity.class);//发送id值并跳转
             intent.putExtra("ID",  deviceID);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                Objects.requireNonNull(getActivity()).startActivity(intent);
-            }
+            Objects.requireNonNull(getActivity()).startActivity(intent);
             return true;
         }
     };
@@ -248,7 +246,7 @@ public class MapFragment extends Fragment {
             double lo = Double.parseDouble(overlayList.get(i).getLongitude());
             /* 使用Bundle来存储机械编号 */
             Bundle bundle = new Bundle();
-            bundle.putSerializable("id", overlayList.get(i).getDeviceID());
+            bundle.putSerializable("id", overlayList.get(i).getFactoryID());
             //定义Maker坐标点
             LatLng point = new LatLng(la, lo);
             //构建Marker图标

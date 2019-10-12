@@ -1,21 +1,28 @@
 package com.example.zjyd.db;
 
+import android.widget.ArrayAdapter;
+
 import org.litepal.crud.DataSupport;
+
+import java.util.ArrayList;
 
 public class Overlay extends DataSupport {
 
-    private String deviceID;
+    private String factoryID;
 
     private String latitude;
 
     private String longitude;
 
-    public String getDeviceID() {
-        return deviceID;
+    /* 用于存储目标工厂内所含的所有机器类别 */
+//    private ArrayList<String> typeList = new ArrayList<>();
+
+    public String getFactoryID() {
+        return factoryID;
     }
 
-    public void setDeviceID(String deviceID) {
-        this.deviceID = deviceID;
+    public void setFactoryID(String factoryID) {
+        this.factoryID = factoryID;
     }
 
     public String getLatitude() {

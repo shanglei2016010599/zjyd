@@ -85,11 +85,9 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        String responseData = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                            responseData = Objects.requireNonNull(response.body()).string();
-                        }
-                        LogUtil.d(TAG, responseData);
+                        String responseData;
+                        responseData = Objects.requireNonNull(response.body()).string();
+                        LogUtil.d(TAG, "responseData is " + responseData);
                         assert responseData != null;
                         results = responseData.split(",");
                         result = results[0];

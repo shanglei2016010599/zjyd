@@ -1,7 +1,6 @@
 package com.example.zjyd.fragment;
 
 import android.app.ProgressDialog;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -68,10 +67,8 @@ public class ChooseMachineFragment extends Fragment {
         titleText = view.findViewById(R.id.title_text);
         backButton = view.findViewById(R.id.back_button);
         listView = view.findViewById(R.id.list_view);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            adapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
-                    android.R.layout.simple_list_item_1, dataList);
-        }
+        adapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+                android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
         return view;
     }
