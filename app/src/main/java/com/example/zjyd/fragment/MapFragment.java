@@ -358,9 +358,9 @@ public class MapFragment extends Fragment {
 
     }
 
-    /* 从服务器获得所有机器的经纬度 */
+    /* 从服务器获得所有工厂的经纬度 */
     private void queryOverlayFromServer(){
-        HttpUtil.sendOkHttpRequest(URLUtil.OverlayURL, new okhttp3.Callback() {
+        HttpUtil.sendOkHttpRequestByPost(URLUtil.OverlayURL, "code", "123", new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 LogUtil.e(TAG, e.toString());

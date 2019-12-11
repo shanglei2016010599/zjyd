@@ -30,7 +30,7 @@ public class InfoFragment extends Fragment {
     TextView machineContentText;
     String machineName = "浙江易锻";
     int machineImageId = R.drawable.machine;
-    String machineID = "This is machineID";
+    String machineID = "这是机器类别C中的机器B。";
 
     @Nullable
     @Override

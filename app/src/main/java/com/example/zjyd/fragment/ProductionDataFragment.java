@@ -62,7 +62,7 @@ public class ProductionDataFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         /* 图表标题 */
-        series = new XYSeries("London Temperature hourly");
+        series = new XYSeries("冲床温度");
 
         /* 数据填充 */
         InitData();
