@@ -17,10 +17,10 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void sendOkHttpRequestByPost(String address, String key1, String Body1, Callback callback) {
+    public static void sendOkHttpRequestByPost(String address, String key1, String body1, Callback callback) {
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add(key1, Body1)
+                .add(key1, body1)
                 .build();
         Request request = new Request.Builder()
                 .url(address)
@@ -29,12 +29,31 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void sendOkHttpRequestByPost(String address, String key1, String Body1, String key2, String Body2, Callback callback){
+    public static void sendOkHttpRequestByPost(String address, String key1, String body1, String key2, String body2, Callback callback){
         OkHttpClient client = new OkHttpClient();
 
         RequestBody requestBody = new FormBody.Builder()
-                .add(key1, Body1)
-                .add(key2, Body2)
+                .add(key1, body1)
+                .add(key2, body2)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+
+    public static void sendOkHttpRequestByPost(String address, String key1, String body1,
+                                                 String key2, String body2,
+                                                 String key3, String body3, Callback callback) {
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new FormBody.Builder()
+                .add(key1, body1)
+                .add(key2, body2)
+                .add(key3, body3)
                 .build();
 
         Request request = new Request.Builder()

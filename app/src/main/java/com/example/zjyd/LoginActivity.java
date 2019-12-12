@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.zjyd.fragment.MapFragment;
 import com.example.zjyd.util.HttpUtil;
 import com.example.zjyd.util.LogUtil;
 import com.example.zjyd.util.URLUtil;
@@ -52,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
                     intent = new Intent(LoginActivity.this, ChooseMachineActivity.class);
                 } else {
                     intent = new Intent(LoginActivity.this, MapActivity.class);
+                    intent.putExtra("account", account);
+
                 }
                 startActivity(intent);
             }
@@ -69,7 +72,8 @@ public class LoginActivity extends AppCompatActivity {
     public void Login(View view) {
         account = accountEdit.getText().toString();
         password = passwordEdit.getText().toString();
-        HttpUtil.sendOkHttpRequestByPost(URLUtil.LoginURL, "account", account,
+        HttpUtil.sendOkHttpRequestByPost(URLUtil.LoginURL,"code", "land",
+                "account", account,
                 "password", password, new okhttp3.Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -89,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                         responseData = Objects.requireNonNull(response.body()).string();
                         LogUtil.d(TAG, "responseData is " + responseData);
                         assert responseData != null;
-                        results = responseData.split(",");
+                        results = responseData.split(" ");
                         result = results[0];
                         userType = results[1].trim();
                         LogUtil.d(TAG, "result is " + result);

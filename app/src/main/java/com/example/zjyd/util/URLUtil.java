@@ -2,8 +2,8 @@ package com.example.zjyd.util;
 
 public class URLUtil {
 
-    public static final String OverlayURL = "http://25783ug894.qicp.vip/ReWriteVersion1.0_war/location";
+    public static final String OverlayURL = "http://47.100.242.80:8080/web/landService";
 
-    public static final String LoginURL = "http://25783ug894.qicp.vip/ReWriteVersion1.0_war/land";
+    public static final String LoginURL = "http://47.100.242.80:8080/web/landService";
 
 }

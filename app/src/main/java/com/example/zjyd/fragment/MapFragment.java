@@ -74,6 +74,7 @@ public class MapFragment extends Fragment {
 
     private static final String TAG = "MapFragment";
     private static final int GET_LOCATION_OK = 1;
+    private String account;
 
     //所有省
     protected String[] mProvinceDatas;
@@ -126,6 +127,10 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 使用intent获得账号
+        // TODO 应该将账号存储在手机，而不是利用intent传递
+        Intent intent = getActivity().getIntent();
+        account = intent.getStringExtra("account");
         // 在fragment用getContext().getApplicationContext()获取整个应用的上下文
         // 声明LocationClient类
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -179,7 +184,7 @@ public class MapFragment extends Fragment {
                 permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
             }//获取位置信息
         }
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }//读写SD卡
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -360,7 +365,8 @@ public class MapFragment extends Fragment {
 
     /* 从服务器获得所有工厂的经纬度 */
     private void queryOverlayFromServer(){
-        HttpUtil.sendOkHttpRequestByPost(URLUtil.OverlayURL, "code", "123", new okhttp3.Callback() {
+        HttpUtil.sendOkHttpRequestByPost(URLUtil.OverlayURL, "code", "factoryLocation",
+                "account", account, new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 LogUtil.e(TAG, e.toString());
